@@ -22,4 +22,5 @@ problem n = maximum . adjacentProducts n . show $ number
 
 main :: IO ()
 main = print (problem 13)
+-- 23514624000
 
