@@ -5,11 +5,11 @@
 -- NOTE: The first two lines in the file represent the numbers in the example given above.
 module Problem99 where
 
-parseFile :: Int -> IO (Integer, Integer)
-parseFile n = do
-	text <- readFile "base_exp.txt"
-	let line = lines text !! n
-	return $ read $ "(" ++ line ++ ")"
+parseFile :: Int -> IO (Integer,Integer)
+parseFile n = 
+  do text <- readFile "base_exp.txt"
+     let line = lines text !! n
+     return $ read $ "(" ++ line ++ ")"
 
 main :: IO ()
 main = return ()

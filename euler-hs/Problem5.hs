@@ -1,4 +1,5 @@
 module Problem5 (main) where
+
 --------------------------
 {-
 isCandidate :: Int -> Bool
@@ -12,4 +13,4 @@ isCandidate n = not $ elem False $ map (divisible n) [1..20]
 main = print $ head $ filter isCandidate [1..]
 -}
 main :: IO ()
-main = print . foldr1 lcm $ [1..20]
+main = print . foldr1 lcm $ [1 .. 20]

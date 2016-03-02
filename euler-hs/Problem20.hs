@@ -1,6 +1,8 @@
 module Problem20 (factorial, digitalSum, main) where
+
 --------------------------------
 import Data.Char (digitToInt)
+
 --------------------------------
 factorial :: Integer -> Integer
 factorial = product . enumFromTo 1

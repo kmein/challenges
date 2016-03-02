@@ -10,4 +10,7 @@ digitalSum :: Integer -> Integer
 digitalSum = sum . map (fromIntegral . digitToInt) . show
 
 main :: IO ()
-main = print $ maximum [digitalSum (a^b) | a <- [1..99], b <- [1..99]]
+main = 
+  print $
+  maximum [digitalSum (a ^ b) | a <- [1 .. 99]
+                              , b <- [1 .. 99]]

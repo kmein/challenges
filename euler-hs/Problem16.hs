@@ -1,6 +1,8 @@
 module Problem16 (digitalSum, main) where
+
 -------------------------------------------
 import Data.Char (digitToInt)
+
 -------------------------------------------
 digitalSum :: Integer -> Integer
 digitalSum = sum . map (fromIntegral . digitToInt) . show
