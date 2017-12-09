@@ -45,10 +45,9 @@ day5 h = loop 0 0
                 (succ count)
                 (i + (xs V.! i))
                 (V.modify (\v -> VM.modify v (half h succ strange) i) xs)
-    strange x =
-        if x >= 3
-            then x - 1
-            else x + 1
+    strange x
+        | x >= 3 = x - 1
+        | otherwise = x + 1
 
 main :: IO ()
 main = do
