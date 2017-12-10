@@ -1,10 +1,13 @@
 #!/usr/bin/env stack
--- stack --resolver lts-9.17 runhaskell --package tasty --package tasty-hunit --package vector --package megaparsec
+-- stack --resolver lts-9.17 runhaskell --package tasty --package tasty-hunit --package vector --package split
 
 import Control.Monad
-import Data.Char (digitToInt, isDigit)
+import Data.Array (assocs)
+import Data.Char
 import Data.Graph
-import Data.List (maximumBy, nub, nubBy, sort)
+import Data.List
+import Data.List.Split
+import Data.Tree (subForest)
 import Data.Maybe
 import Data.Ord (comparing)
 import Debug.Trace (traceShow)
@@ -13,8 +16,6 @@ import Test.Tasty.HUnit
 import qualified Data.Map as M
 import qualified Data.Vector as V
 import qualified Data.Vector.Mutable as VM (modify)
-import Text.Megaparsec
-import Text.Megaparsec.Lexer
 
 data Half = Fst | Snd
 
@@ -79,25 +80,42 @@ day6 h = half h fst snd . countLoop . iterate step
           where
             m' = succ <$> m
 
-day7 inp = traceShow (edges g) $ undefined
+day7 inp = programName $ topProgram g
   where
-    (g, getProgram) =
-        graphFromEdges'
-            (join traceShow . map (\(n, w, c) -> ((n, w), n, c)) . catMaybes $
-             map (parseMaybe program) $ join traceShow inp)
+    -- subWeights v = map (sum . fmap programWeight) $ subForest $ head $ dfs g [v]
+    -- programWeight = (\((_, w), _, _) -> w) . getProgram
+    programName = (\(_, p, _) -> p) . getProgram
+    topProgram = fromJust . fmap fst . find ((== 0) . snd) . assocs . indegree
+    (g, getProgram, getVertex) =
+        graphFromEdges $ map ((\(n, w, c) -> ((n, w), n, c)) . parse) inp
+    parse :: String -> (String, Integer, [String])
+    parse s =
+        let (name, ' ':'(':s') = span isAlpha s
+            (weight, ')':s'') = span isNumber s'
+        in case stripPrefix " -> " s'' of
+               Nothing -> (name, read weight, [])
+               Just s''' -> (name, read weight, splitOn ", " s''')
 
-program :: Parsec () String (String, Integer, [String])
-program = do
-    name <- some anyChar
-    spaceChar
-    char '('
-    weight <- decimal
-    char ')'
-    children <-
-        option [] $
-        do string " -> "
-           sepBy1 (string ", ") (some anyChar)
-    return (name, weight, children)
+day8 h ins = half h (maximum $ foldl apply M.empty $ map parse ins) undefined
+  where
+    apply regs (reg, (op, opand), (condReg, condOrds, condVal)) =
+        if compare (fromMaybe 0 $ M.lookup condReg regs) condVal `elem` condOrds
+            then case op of
+                     "inc" -> M.insertWith (+) reg opand regs
+                     "dec" -> M.insertWith (-) reg opand regs
+            else regs
+    ords c =
+        case c of
+            "==" -> [EQ]
+            "!=" -> [LT, GT]
+            "<" -> [LT]
+            ">" -> [GT]
+            "<=" -> [LT, EQ]
+            ">=" -> [GT, EQ]
+    parse :: String -> (String, (String, Int), (String, [Ordering], Int))
+    parse s =
+        let [reg, op, opand, _, condReg, condComp, condVal] = words s
+        in (reg, (op, read opand), (condReg, ords condComp, read condVal))
 
 main :: IO ()
 main = do
@@ -107,6 +125,8 @@ main = do
     day4input <- lines <$> readFile "day4.txt"
     day5input <- (fmap parse . V.fromList . lines) <$> readFile "day5.txt"
     day6input <- (fmap parse . V.fromList . words) <$> readFile "day6.txt"
+    day7input <- lines <$> readFile "day7.txt"
+    day8input <- lines <$> readFile "day8.txt"
     defaultMain
         (testGroup
              "Tests"
@@ -165,22 +185,20 @@ main = do
                    [ testCase "1" $ day6 Snd (V.fromList [0, 2, 7, 0]) @?= 4
                      -- , testCase "#" $ day6 Snd day6input @?= 0 -- 2392
                     ]
-             , testDay
-                   7
-                   [ testCase "1" $
-                     day7
-                         [ "pbga (66)"
-                         , "xhth (57)"
-                         , "ebii (61)"
-                         , "havc (66)"
-                         , "ktlj (57)"
-                         , "fwft (72) -> ktlj, cntj, xhth"
-                         , "qoyq (66)"
-                         , "padx (45) -> pbga, havc, qoyq"
-                         , "tknk (41) -> ugml, padx, fwft"
-                         , "jptl (61)"
-                         , "ugml (68) -> gyxo, ebii, jptl"
-                         , "gyxo (61)"
-                         , "cntj (57)"] @?=
-                     "tknk"]
-                   []])
+             , let day7test =
+                       lines
+                           "pbga (66)\nxhth (57)\nebii (61)\nhavc (66)\nktlj (57)\nfwft (72) -> ktlj, cntj, xhth\nqoyq (66)\npadx (45) -> pbga, havc, qoyq\ntknk (41) -> ugml, padx, fwft\njptl (61)\nugml (68) -> gyxo, ebii, jptl\ngyxo (61)\ncntj (57)"
+               in testDay
+                      7
+                      [ testCase "1" $ day7 day7test @?= "tknk"
+                        -- , testCase "#" $ day7 Fst day7input @?= [] -- vmpywg
+                       ]
+                      []
+             , let day8test =
+                       lines
+                           "b inc 5 if a > 1\na inc 1 if b < 5\nc dec -10 if a >= 1\nc inc -20 if c == 10"
+               in testDay
+                      8
+                      [ testCase "1" $ day8 Fst day8test @?= 1
+                      , testCase "#" $ day8 Fst day8input @?= 0]
+                      []])
