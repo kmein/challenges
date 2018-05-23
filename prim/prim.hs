@@ -8,8 +8,6 @@ import System.Random (randomRIO)
 import qualified Data.Vector.Unboxed as V
 import Data.MemoTrie (memo)
 
-type Score = Word
-
 unDigits :: Integral a => [a] -> a
 unDigits = foldl (\a b -> a * 10 + b) 0
 {-# SPECIALIZE unDigits :: [Word] -> Word #-}
@@ -23,7 +21,7 @@ digits = dr []
         where (r, d) = quotRem x 10
 {-# SPECIALIZE digits :: Word -> [Word] #-}
 
-score :: [Word] -> Score
+score :: [Word] -> Word
 score = memo score'
     where score' = last . primeFactors . unDigits . concatMap digits
 
@@ -38,7 +36,7 @@ pickIndex i =
   let is = [pred i, i, succ i]
   in gets (\xs -> score $ map (xs V.!) is) <* modify (sans i)
 
-pickIndices :: [Int] -> V.Vector Word -> Score
+pickIndices :: [Int] -> V.Vector Word -> Word
 pickIndices is = sum . evalState (mapM pickIndex is)
 
 indices :: Int -> [[Int]]
@@ -47,7 +45,7 @@ indices len =
     then []
     else mapM (enumFromTo 1) [len - 2,len - 3 .. 1]
 
-scores :: V.Vector Word -> [([Int], Score)]
+scores :: V.Vector Word -> [([Int], Word)]
 scores xs = map (\is -> (is, pickIndices is xs)) (indices $ V.length xs)
 
 main :: IO ()
