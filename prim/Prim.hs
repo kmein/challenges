@@ -1,11 +1,9 @@
+module Prim where
+
 import Control.Monad.State.Strict
-import Data.List (maximumBy)
-import Data.Numbers.Primes (primeFactors)
-import Data.Ord (comparing)
-import System.Environment (getArgs)
-import System.Random (randomRIO)
-import qualified Data.Vector.Unboxed as V
 import Data.MemoTrie (memo)
+import Data.Numbers.Primes (primeFactors)
+import qualified Data.Vector.Unboxed as V
 
 unDigits :: Integral a => [a] -> a
 unDigits = foldl (\a b -> a * 10 + b) 0
@@ -43,9 +41,3 @@ indices len
 scores :: V.Vector Word -> [([Int], Word)]
 scores xs = map (\is -> (is, pickIndices is xs)) $ indices $ V.length xs
 
-main :: IO ()
-main = do
-  [n] <- map read <$> getArgs
-  arr <- V.fromList <$> replicateM n (randomRIO (0, 99))
-  print arr
-  print $ maximumBy (comparing snd) $ scores arr

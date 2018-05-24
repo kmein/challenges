@@ -7,7 +7,7 @@ license: MIT
 github: kmein/challenges
 category: Data
 
-ghc-options: -O3 -Wall
+ghc-options: -O2 -Wall
 
 dependencies:
     - base >= 4.9 && < 5
@@ -17,6 +17,24 @@ dependencies:
     - vector
     - MemoTrie
 
+library:
+    source-dirs: [.]
+    exposed-modules: [Prim]
+
 executable:
-    main: prim.hs
-    source-dirs: .
+    source-dirs: [.]
+    main: Main.hs
+    dependencies:
+        - prim
+
+tests:
+    spec:
+        cpp-options: -DTEST
+        main: Test.hs
+        source-dirs: test
+        dependencies:
+            - prim
+            - vector
+            - tasty
+            - tasty-hunit
+            - tasty-quickcheck
