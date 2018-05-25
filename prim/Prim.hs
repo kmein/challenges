@@ -29,7 +29,7 @@ sans i xs = ys V.++ V.tail zs
 pickIndices :: [Int] -> V.Vector Word -> Word
 pickIndices = (sum .) . evalState . mapM pickIndex
   where
-    pickIndex i = gets (\xs -> score $ map (xs V.!) is) <* modify (sans i)
+    pickIndex i = gets (\xs -> score $ map (V.unsafeIndex xs) is) <* modify (sans i)
       where is = [pred i, i, succ i]
 
 indices :: Int -> [[Int]]
