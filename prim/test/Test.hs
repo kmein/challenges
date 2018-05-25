@@ -2,11 +2,11 @@
 import Test.Tasty
 import Test.Tasty.HUnit
 import Test.Tasty.QuickCheck
-import qualified Data.Vector.Unboxed as V
+import qualified Data.Vector as V
 
 import Prim
 
-instance (V.Unbox a, Arbitrary a) => Arbitrary (V.Vector a) where
+instance (Arbitrary a) => Arbitrary (V.Vector a) where
   arbitrary = V.fromList <$> arbitrary
 
 main :: IO ()
@@ -49,9 +49,9 @@ main =
         ]
     , testGroup
         "indices"
-        [ testCase "1" $ [[1, 1], [2, 1]] @=? indices 4
+        [ testCase "1" $ [[1, 1], [2, 1]] @=? indices @[] [(), (), (), ()]
         , testProperty "n!" $ forAll (choose (3, 10)) $ \n ->
-            n > 2 ==> length (indices n) == product @[] [1 .. n - 2]
+            n > 2 ==> length (indices $ replicate n ()) == product @[] [1 .. n - 2]
         ]
     , testGroup
         "scores"
