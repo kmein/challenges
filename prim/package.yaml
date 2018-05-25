@@ -9,6 +9,9 @@ category: Data
 
 ghc-options: -O2 -Wall
 
+default-extensions:
+    - FlexibleContexts
+
 dependencies:
     - base >= 4.9 && < 5
     - mtl
@@ -18,11 +21,14 @@ dependencies:
     - MemoTrie
 
 library:
-    source-dirs: [.]
-    exposed-modules: [Prim]
+    source-dirs:
+        - .
+    exposed-modules:
+        - Prim
 
 executable:
-    source-dirs: [.]
+    source-dirs:
+        - .
     main: Main.hs
     dependencies:
         - prim

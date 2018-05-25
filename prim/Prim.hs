@@ -26,12 +26,11 @@ sans i xs = ys V.++ V.tail zs
   where (ys, zs) = V.splitAt i xs
 {-# SPECIALIZE sans :: Int -> V.Vector Word -> V.Vector Word #-}
 
-pickIndex :: Int -> State (V.Vector Word) Word
-pickIndex i = gets (\xs -> score $ map (xs V.!) is) <* modify (sans i)
-  where is = [pred i, i, succ i]
-
 pickIndices :: [Int] -> V.Vector Word -> Word
-pickIndices is = sum . evalState (mapM pickIndex is)
+pickIndices = (sum .) . evalState . mapM pickIndex
+  where
+    pickIndex i = gets (\xs -> score $ map (xs V.!) is) <* modify (sans i)
+      where is = [pred i, i, succ i]
 
 indices :: Int -> [[Int]]
 indices len
@@ -40,4 +39,3 @@ indices len
 
 scores :: V.Vector Word -> [([Int], Word)]
 scores xs = map (\is -> (is, pickIndices is xs)) $ indices $ V.length xs
-
