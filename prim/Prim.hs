@@ -21,7 +21,7 @@ digits = flip ds []
 {-# SPECIALIZE digits :: Word -> [Word] #-}
 
 score :: [Word] -> Word
-score = memo $ last . primeFactors . unDigits . concatMap digits
+score = memo (last . primeFactors) . unDigits . concatMap digits
 
 sans :: Int -> V.Vector a -> V.Vector a
 sans i xs = ys V.++ V.tail zs
