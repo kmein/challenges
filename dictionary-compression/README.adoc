@@ -1,0 +1,2 @@
+= dictionary-compression
+See link:https://jmarcher.io/programming-challenge-dictionary-compression.
