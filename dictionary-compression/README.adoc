@@ -1,2 +1,3 @@
 = dictionary-compression
-See link:https://jmarcher.io/programming-challenge-dictionary-compression.
+
+See https://jmarcher.io/programming-challenge-dictionary-compression[J. M. Archer's article] for mor information.
