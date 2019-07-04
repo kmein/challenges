@@ -1,0 +1,35 @@
+-- This file has been generated from package.yaml by hpack version 0.28.2.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 440ce198424d1f2b90d51dc84886d6e11e6676a3503be2eb365fc99bf994b346
+
+name:           leap
+version:        1.5.1.9
+build-type:     Simple
+cabal-version:  >= 1.10
+
+library
+  exposed-modules:
+      LeapYear
+  other-modules:
+      Paths_leap
+  hs-source-dirs:
+      src
+  ghc-options: -Wall
+  build-depends:
+      base
+  default-language: Haskell2010
+
+test-suite test
+  type: exitcode-stdio-1.0
+  main-is: Tests.hs
+  other-modules:
+      Paths_leap
+  hs-source-dirs:
+      test
+  build-depends:
+      base
+    , hspec
+    , leap
+  default-language: Haskell2010
