@@ -1,5 +1,5 @@
 #!/usr/bin/env -S csi -script
-(import http-client (chicken io))
+(import (chicken io))
 
 (define (mass->fuel mass)
   (- (floor (/ mass 3)) 2))
