@@ -1,2 +1,5 @@
 prim/.stack-work/
 prim/prim.cabal
+.history
+.envrc
+.direnv
