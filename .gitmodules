@@ -1,3 +1,6 @@
 [submodule "euler-io"]
 	path = euler-io
 	url = git@github.com:kmein/euler-io
+[submodule "euler-hs"]
+	path = euler-hs
+	url = https://github.com/kmein/euler-hs
