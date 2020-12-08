@@ -44,5 +44,4 @@ main = do
   passes <- lines <$> readFile "5.txt"
   let seatIds = mapMaybe seatId passes
   print $ maximum seatIds
-  print "\n\n"
-  print $ [0..maximum seatIds] \\ sort seatIds
+  print $ [minimum seatIds..maximum seatIds] \\ sort seatIds
