@@ -113,30 +113,25 @@ procedure AOC02 is
     end if;
   end Is_Safe_Dampened;
 
-  procedure Main is
-    Data : Grid.Vector;
-    Safe_Rows : Natural := 0;
-    Safe_Rows_Dampened : Natural := 0;
-  begin
-    if Ada.Environment_Variables.Exists(Name => "AOC_TEST") then
-      Data := Read_Data("02.txt.test");
-    else
-      Data := Read_Data("02.txt");
-    end if;
-
-    for Report of Data loop
-      if Is_Safe(Report) then
-        Safe_Rows := Safe_Rows + 1;
-      end if;
-      if Is_Safe_Dampened(Report) then
-        Safe_Rows_Dampened := Safe_Rows_Dampened + 1;
-      end if;
-    end loop;
-
-    Ada.Text_IO.Put_Line("Safe rows" & Integer'Image(Safe_Rows));
-    Ada.Text_IO.Put_Line("Safe rows dampened" & Integer'Image(Safe_Rows_Dampened));
-  end Main;
-
+  Data : Grid.Vector;
+  Safe_Rows : Natural := 0;
+  Safe_Rows_Dampened : Natural := 0;
 begin
-  Main;
+  if Ada.Environment_Variables.Exists(Name => "AOC_TEST") then
+    Data := Read_Data("02.txt.test");
+  else
+    Data := Read_Data("02.txt");
+  end if;
+
+  for Report of Data loop
+    if Is_Safe(Report) then
+      Safe_Rows := Safe_Rows + 1;
+    end if;
+    if Is_Safe_Dampened(Report) then
+      Safe_Rows_Dampened := Safe_Rows_Dampened + 1;
+    end if;
+  end loop;
+
+  Ada.Text_IO.Put_Line("Safe rows" & Integer'Image(Safe_Rows));
+  Ada.Text_IO.Put_Line("Safe rows dampened" & Integer'Image(Safe_Rows_Dampened));
 end AOC02;
