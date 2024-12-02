@@ -7,7 +7,6 @@ with Ada.Text_IO;
 use Ada.Strings, Ada.Strings.Fixed, Ada.Strings.Maps;
 use Ada.Text_IO;
 
-
 procedure aoc02 is
   package Row is new Ada.Containers.Vectors (
     Index_Type   => Positive,
@@ -21,10 +20,6 @@ procedure aoc02 is
   );
 
   function Read_Data(File_Name: String) return Grid.Vector is
-    Data : Grid.Vector;
-    File : File_Type;
-    Input : File_Type;
-
     function Parse_Row(Input : String) return Row.Vector is
       Pos : Natural := 1;
       Output : Row.Vector := Row.Empty_Vector;
@@ -39,16 +34,13 @@ procedure aoc02 is
       end loop;
       return Output;
     end Parse_Row;
+    Data : Grid.Vector;
+    File : File_Type;
+    Input : File_Type;
   begin
     Open(File => Input, Mode => In_File, Name => File_Name);
     loop
-      declare
-        Line : String := Get_Line(Input);
-        Current_Row : Row.Vector;
-      begin
-        Current_Row := Parse_Row(Line);
-        Data.Append(Current_Row);
-      end;
+      Data.Append(Parse_Row(Get_Line(Input)));
     end loop;
   exception
     when Ada.IO_Exceptions.Name_Error =>
@@ -74,26 +66,25 @@ procedure aoc02 is
       end if;
     end Sign;
     Report_Sign : Sign_Type := 0;
-    Current_Sign : Sign_Type := 0;
-    Difference : Integer;
   begin
     for I in Report.First_Index .. Report.Last_Index - 1 loop
-      Difference := Report(I + 1) - Report(I);
-
-      if abs(Difference) < 1 or abs(Difference) > 3 then
-        Put_Line("Report " & Integer'Image(I) & " unsafe because of large difference: " & Integer'Image(Difference));
-        return False;
-      else
-        Current_Sign := Sign(Difference);
-
-        if Report_Sign = 0 then
-          Report_Sign := Current_Sign;
-        end if;
-
-        if Current_Sign /= Report_Sign then
+      declare
+        Difference : Integer := Report(I + 1) - Report(I);
+        Current_Sign : Sign_Type := Sign(Difference);
+      begin
+        if abs(Difference) < 1 or abs(Difference) > 3 then
+          Put_Line("Report " & Integer'Image(I) & " unsafe because of large difference: " & Integer'Image(Difference));
           return False;
+        else
+          if Report_Sign = 0 then
+            Report_Sign := Current_Sign;
+          end if;
+
+          if Current_Sign /= Report_Sign then
+            return False;
+          end if;
         end if;
-      end if;
+      end;
     end loop;
 
     return True;
@@ -110,20 +101,20 @@ procedure aoc02 is
       end loop;
       return Result;
     end Remove_Element_At;
-
-    Dampened_Report : Row.Vector;
   begin
     if Is_Safe(Report) then
       return True;
     else
       for I in Report.First_Index .. Report.Last_Index loop
-        Dampened_Report := Remove_Element_At(I, Report);
-        if Is_Safe(Dampened_Report) then
-          Put_Line("Unsafe report could be saved by removing element" & Integer'Image(I));
-          return True;
-        end if;
+        declare
+          Dampened_Report : Row.Vector := Remove_Element_At(I, Report);
+        begin
+          if Is_Safe(Dampened_Report) then
+            Put_Line("Unsafe report could be saved by removing element" & Integer'Image(I));
+            return True;
+          end if;
+        end;
       end loop;
-
       return False;
     end if;
   end Is_Safe_Dampened;
