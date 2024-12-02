@@ -4,20 +4,9 @@ with Ada.IO_Exceptions;
 with Ada.Strings.Fixed, Ada.Strings.Maps;
 with Ada.Text_IO;
 
-use Ada.Strings, Ada.Strings.Fixed, Ada.Strings.Maps;
-use Ada.Text_IO;
-
-procedure aoc02 is
-  package Row is new Ada.Containers.Vectors (
-    Index_Type   => Positive,
-    Element_Type => Integer
-  );
-
-  package Grid is new Ada.Containers.Vectors (
-    Index_Type   => Positive,
-    Element_Type => Row.Vector,
-    "="          => Row."="
-  );
+procedure AOC02 is
+  package Row is new Ada.Containers.Vectors(Index_Type => Positive, Element_Type => Integer);
+  package Grid is new Ada.Containers.Vectors(Index_Type => Positive, Element_Type => Row.Vector, "=" => Row."=");
 
   function Read_Data(File_Name: String) return Grid.Vector is
     function Parse_Row(Input : String) return Row.Vector is
@@ -27,7 +16,14 @@ procedure aoc02 is
       Finish : Natural := 0;
     begin
       while Start <= Input'Last loop
-        Find_Token(Input, To_Set (' '), Start, Outside, Start, Finish);
+        Ada.Strings.Fixed.Find_Token(
+          Input,
+          Ada.Strings.Maps.To_Set(' '),
+          Start,
+          Ada.Strings.Outside,
+          Start,
+          Finish
+        );
         exit when Start > Finish;
         Output.Append(Integer'Value(Input(Start .. Finish)));
         Start := Finish + 1;
@@ -35,20 +31,20 @@ procedure aoc02 is
       return Output;
     end Parse_Row;
     Data : Grid.Vector;
-    File : File_Type;
-    Input : File_Type;
+    File : Ada.Text_IO.File_Type;
+    Input : Ada.Text_IO.File_Type;
   begin
-    Open(File => Input, Mode => In_File, Name => File_Name);
+    Ada.Text_IO.Open(File => Input, Mode => Ada.Text_IO.In_File, Name => File_Name);
     loop
-      Data.Append(Parse_Row(Get_Line(Input)));
+      Data.Append(Parse_Row(Ada.Text_IO.Get_Line(Input)));
     end loop;
   exception
     when Ada.IO_Exceptions.Name_Error =>
-      Put_Line("File not found.");
+      Ada.Text_IO.Put_Line("File not found.");
       return Grid.Empty_Vector;
     when Ada.IO_Exceptions.End_Error =>
-      if Is_Open(Input) then
-        Close (Input);
+      if Ada.Text_IO.Is_Open(Input) then
+        Ada.Text_IO.Close (Input);
       end if;
       return Data;
   end Read_Data;
@@ -73,7 +69,6 @@ procedure aoc02 is
         Current_Sign : Sign_Type := Sign(Difference);
       begin
         if abs(Difference) < 1 or abs(Difference) > 3 then
-          Put_Line("Report " & Integer'Image(I) & " unsafe because of large difference: " & Integer'Image(Difference));
           return False;
         else
           if Report_Sign = 0 then
@@ -110,7 +105,6 @@ procedure aoc02 is
           Dampened_Report : Row.Vector := Remove_Element_At(I, Report);
         begin
           if Is_Safe(Dampened_Report) then
-            Put_Line("Unsafe report could be saved by removing element" & Integer'Image(I));
             return True;
           end if;
         end;
@@ -139,10 +133,10 @@ procedure aoc02 is
       end if;
     end loop;
 
-    Put_Line("Safe rows" & Integer'Image(Safe_Rows));
-    Put_Line("Safe rows dampened" & Integer'Image(Safe_Rows_Dampened));
+    Ada.Text_IO.Put_Line("Safe rows" & Integer'Image(Safe_Rows));
+    Ada.Text_IO.Put_Line("Safe rows dampened" & Integer'Image(Safe_Rows_Dampened));
   end Main;
 
 begin
   Main;
-end aoc02;
+end AOC02;
