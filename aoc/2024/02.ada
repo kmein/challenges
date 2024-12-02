@@ -1,10 +1,11 @@
-with Ada.Environment_Variables;
-with Ada.Text_IO; use Ada.Text_IO;
-with Ada.Integer_Text_IO; use Ada.Integer_Text_IO;
 with Ada.Containers.Vectors;
+with Ada.Environment_Variables;
 with Ada.IO_Exceptions;
-with Ada.Containers.Indefinite_Vectors, Ada.Strings.Fixed, Ada.Strings.Maps;
-use Ada.Containers, Ada.Strings, Ada.Strings.Fixed, Ada.Strings.Maps;
+with Ada.Strings.Fixed, Ada.Strings.Maps;
+with Ada.Text_IO;
+
+use Ada.Strings, Ada.Strings.Fixed, Ada.Strings.Maps;
+use Ada.Text_IO;
 
 
 procedure aoc02 is
