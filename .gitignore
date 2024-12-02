@@ -3,3 +3,6 @@ prim/prim.cabal
 .history
 .envrc
 .direnv
+*.ali
+*.o
+02

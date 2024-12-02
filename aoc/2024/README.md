@@ -34,5 +34,5 @@
 - [ ] OCaml
 - [ ] ObjectiveC
 - [ ] Nim
-- [ ] Ada
+- [x] Ada: 2
 - [ ] Fortran
