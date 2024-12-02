@@ -19,25 +19,25 @@ procedure aoc02 is
     "="          => Row."="
   );
 
-  function Parse_Row(Input : String) return Row.Vector is
-    Pos : Natural := 1;
-    Output : Row.Vector := Row.Empty_Vector;
-    Start : Positive := Input'First;
-    Finish : Natural := 0;
-  begin
-    while Start <= Input'Last loop
-      Find_Token(Input, To_Set (' '), Start, Outside, Start, Finish);
-      exit when Start > Finish;
-      Output.Append(Integer'Value(Input(Start .. Finish)));
-      Start := Finish + 1;
-    end loop;
-    return Output;
-  end Parse_Row;
-
   function Read_Data(File_Name: String) return Grid.Vector is
     Data : Grid.Vector;
     File : File_Type;
     Input : File_Type;
+
+    function Parse_Row(Input : String) return Row.Vector is
+      Pos : Natural := 1;
+      Output : Row.Vector := Row.Empty_Vector;
+      Start : Positive := Input'First;
+      Finish : Natural := 0;
+    begin
+      while Start <= Input'Last loop
+        Find_Token(Input, To_Set (' '), Start, Outside, Start, Finish);
+        exit when Start > Finish;
+        Output.Append(Integer'Value(Input(Start .. Finish)));
+        Start := Finish + 1;
+      end loop;
+      return Output;
+    end Parse_Row;
   begin
     Open(File => Input, Mode => In_File, Name => File_Name);
     loop
@@ -60,31 +60,27 @@ procedure aoc02 is
       return Data;
   end Read_Data;
 
-  function Sign(Value: Integer) return Integer is
-  begin
-    if Value < 0 then
-      return -1;
-    elsif Value > 0 then
-      return 1;
-    else
-      return 0;
-    end if;
-  end Sign;
-
   function Is_Safe(Report : Row.Vector) return Boolean is
-    Report_Sign : Integer := 0;
-    Current_Sign : Integer := 0;
-    Result_A : Integer;
-    Result_B : Integer;
+    type Sign_Type is range -1 .. 1;
+    function Sign(Value: Integer) return Sign_Type is
+    begin
+      if Value < 0 then
+        return -1;
+      elsif Value > 0 then
+        return 1;
+      else
+        return 0;
+      end if;
+    end Sign;
+    Report_Sign : Sign_Type := 0;
+    Current_Sign : Sign_Type := 0;
     Difference : Integer;
   begin
     for I in Report.First_Index .. Report.Last_Index - 1 loop
-      Result_A := Report(I);
-      Result_B := Report(I + 1);
-      Difference := Result_B - Result_A;
+      Difference := Report(I + 1) - Report(I);
 
       if abs(Difference) < 1 or abs(Difference) > 3 then
-        Put_Line("Report " & Integer'Image(I) & " unsafe because of large difference: " & Integer'Image(Result_A) & Integer'Image(Result_B));
+        Put_Line("Report " & Integer'Image(I) & " unsafe because of large difference: " & Integer'Image(Difference));
         return False;
       else
         Current_Sign := Sign(Difference);
@@ -102,18 +98,18 @@ procedure aoc02 is
     return True;
   end Is_Safe;
 
-  function Remove_Element_At(Index : Positive; Report : Row.Vector) return Row.Vector is
-    Result : Row.Vector := Row.Empty_Vector;
-  begin
-    for I in Report.First_Index .. Report.Last_Index loop
-      if I /= Index then
-        Result.Append(Report(I));
-      end if;
-    end loop;
-    return Result;
-  end Remove_Element_At;
-
   function Is_Safe_Dampened(Report : Row.Vector) return Boolean is
+    function Remove_Element_At(Index : Positive; Report : Row.Vector) return Row.Vector is
+      Result : Row.Vector := Row.Empty_Vector;
+    begin
+      for I in Report.First_Index .. Report.Last_Index loop
+        if I /= Index then
+          Result.Append(Report(I));
+        end if;
+      end loop;
+      return Result;
+    end Remove_Element_At;
+
     Dampened_Report : Row.Vector;
   begin
     if Is_Safe(Report) then
