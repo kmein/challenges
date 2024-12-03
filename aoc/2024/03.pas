@@ -7,10 +7,6 @@ uses
   RegExpr,
   SysUtils;
 
-var
-  EnvVar: string;
-  FileName: string;
-
 function CalculateSumOfProducts(InputString: string): integer;
 var
   MulExpression: TRegExpr;
@@ -34,8 +30,9 @@ begin
   Result := SumOfProducts;
 end;
 
-
 var
+  EnvVar: string;
+  FileName: string;
   Lines: TStringList;
   InputString: string;
   SumOfProducts: integer;
