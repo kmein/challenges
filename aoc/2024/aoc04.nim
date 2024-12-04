@@ -10,13 +10,13 @@ proc getGrid(): Grid[char] =
       "04.txt.test"
     else:
       "04.txt"
-  var result: seq[seq[char]] = @[]
+  var grid: Grid[char] = @[]
   try:
-    for line in lines(fileName):
-      result.add(line.toSeq())
+    for line in fileName.lines:
+      grid.add(line.toSeq)
   except OSError as e:
     echo "Error reading file: ", e.msg
-  return result
+  return grid
 
 # part 1
 
@@ -92,7 +92,7 @@ proc getSearchSpace[T](grid: Grid[T]): seq[seq[T]] =
     searchSpace.add(row.reversed)
   return searchSpace
 
-proc countSubsequence[T](needle: seq[T], haystack: seq[T]): int =
+proc countSubsequence[T](haystack: seq[T], needle: seq[T]): int =
   if needle.len == 0 or haystack.len < needle.len:
     return 0
   var count = 0
@@ -102,10 +102,10 @@ proc countSubsequence[T](needle: seq[T], haystack: seq[T]): int =
   return count
 
 let grid = getGrid()
-let searchSpace = getSearchSpace(grid)
+let searchSpace = grid.getSearchSpace
 var count = 0
 for row in searchSpace:
-  count += countSubsequence(@['X', 'M', 'A', 'S'], row)
+  count += row.countSubsequence(@['X', 'M', 'A', 'S'])
 echo count
 
 # part 2
@@ -131,7 +131,7 @@ proc isCrossedMAS(subgrid3x3: Grid[char]): bool =
   return isXMAS
 
 var count2 = 0
-for subgrid in get3x3Subgrids(grid):
-  if isCrossedMAS(subgrid):
+for subgrid in grid.get3x3Subgrids:
+  if subgrid.isCrossedMAS:
     count2 += 1
 echo count2
