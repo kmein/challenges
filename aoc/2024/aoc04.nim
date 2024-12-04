@@ -20,7 +20,7 @@ proc getGrid(): Grid[char] =
 
 # part 1
 
-proc transpose[T](grid: Grid[T]): Grid[T] =
+func transpose[T](grid: Grid[T]): Grid[T] =
   var transposed: Grid[T] = @[]
   for i in 0 ..< grid[0].len:
     transposed.add(@[])
@@ -29,7 +29,7 @@ proc transpose[T](grid: Grid[T]): Grid[T] =
       transposed[j].add(grid[i][j])
   return transposed
 
-proc getDiagonals[T](grid: Grid[T]): seq[seq[T]] =
+func getDiagonals[T](grid: Grid[T]): seq[seq[T]] =
   var diagonals: seq[seq[T]] = @[]
 
   let rows = grid.len
@@ -79,7 +79,7 @@ proc getDiagonals[T](grid: Grid[T]): seq[seq[T]] =
 
   return diagonals
 
-proc getSearchSpace[T](grid: Grid[T]): seq[seq[T]] =
+func getSearchSpace[T](grid: Grid[T]): seq[seq[T]] =
   var searchSpace: seq[seq[T]] = @[]
   for row in grid:
     searchSpace.add(row)
@@ -92,7 +92,7 @@ proc getSearchSpace[T](grid: Grid[T]): seq[seq[T]] =
     searchSpace.add(row.reversed)
   return searchSpace
 
-proc countSubsequence[T](haystack: seq[T], needle: seq[T]): int =
+func countSubsequence[T](haystack: seq[T], needle: seq[T]): int =
   if needle.len == 0 or haystack.len < needle.len:
     return 0
   var count = 0
@@ -110,7 +110,7 @@ echo count
 
 # part 2
 
-proc get3x3Subgrids[T](grid: Grid[T]): seq[Grid[T]] =
+func get3x3Subgrids[T](grid: Grid[T]): seq[Grid[T]] =
   var subgrids: seq[Grid[T]] = @[]
   for i in 0 ..< (grid.len - 3 + 1):
     for j in 0 ..< (grid[i].len - 3 + 1):
@@ -122,7 +122,7 @@ proc get3x3Subgrids[T](grid: Grid[T]): seq[Grid[T]] =
       subgrids.add(subgrid)
   return subgrids
 
-proc isCrossedMAS(subgrid3x3: Grid[char]): bool =
+func isCrossedMAS(subgrid3x3: Grid[char]): bool =
   var isXMAS = true
   let needle = @['M', 'A', 'S']
   for diagonal in subgrid3x3.getDiagonals:
