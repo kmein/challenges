@@ -7,3 +7,4 @@ prim/prim.cabal
 *.o
 02
 03
+aoc04

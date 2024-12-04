@@ -33,6 +33,6 @@
 - [ ] Perl
 - [ ] OCaml
 - [ ] ObjectiveC
-- [ ] Nim
+- [x] Nim: 4
 - [x] Ada: 2
 - [ ] Fortran
