@@ -1,5 +1,6 @@
 import os, sequtils
 import std/algorithm
+import sugar
 
 type
   Grid[T] = seq[seq[T]]
@@ -102,11 +103,7 @@ func countSubsequence[T](haystack: seq[T], needle: seq[T]): int =
   return count
 
 let grid = getGrid()
-let searchSpace = grid.getSearchSpace
-var count = 0
-for row in searchSpace:
-  count += row.countSubsequence(@['X', 'M', 'A', 'S'])
-echo count
+echo grid.getSearchSpace.map(row => row.countSubsequence(@['X', 'M', 'A', 'S'])).foldr(a + b)
 
 # part 2
 
@@ -130,8 +127,4 @@ func isCrossedMAS(subgrid3x3: Grid[char]): bool =
       isXMAS = isXMAS and ((diagonal == needle or diagonal.reversed == needle))
   return isXMAS
 
-var count2 = 0
-for subgrid in grid.get3x3Subgrids:
-  if subgrid.isCrossedMAS:
-    count2 += 1
-echo count2
+echo grid.get3x3Subgrids.filter(isCrossedMAS).len
