@@ -2,7 +2,7 @@
 
 ## Programming Languages
 - [ ] Python
-- [ ] JavaScript
+- [x] JavaScript: 5
 - [ ] Java
 - [ ] C#
 - [ ] Python

@@ -5,6 +5,7 @@ pkgs.mkShell {
     pkgs.gnat #2
     pkgs.fpc #3
     pkgs.nim #4
+    pkgs.deno #5
 
     (pkgs.writers.writeDashBin "which-language" ''
       ${pkgs.gnugrep}/bin/grep '^- \[ ]' README.md | ${pkgs.coreutils}/bin/shuf -n 1
