@@ -25,32 +25,28 @@ function getInput(): Input {
   };
 }
 
-function sortUpdate(rules: Rule[], update: Update): Update {
-  return toposort(
+const sortUpdate = (rules: Rule[]) => (update: Update): Update =>
+  toposort(
     rules.filter((r) => update.includes(r[0]) && update.includes(r[1])),
   );
-}
 
-function sortedCorrectly(rules: Rule[], update: Update): boolean {
-  const sortOrder = sortUpdate(rules, update);
-  return JSON.stringify(sortOrder) == JSON.stringify(update);
-}
+const sortedCorrectly = (rules: Rule[]) => (update: Update): boolean =>
+  JSON.stringify(sortUpdate(rules)(update)) == JSON.stringify(update);
 
-function middleElement(update: Update): number {
-  return update[Math.floor(update.length / 2)];
-}
+const middleElement = (update: Update): number =>
+  update[Math.floor(update.length / 2)];
 
 const input = getInput();
 
 console.log(
-  input.updates.filter((u) => sortedCorrectly(input.rules, u)).map(
+  input.updates.filter(sortedCorrectly(input.rules)).map(
     middleElement,
   ).reduce((x, y) => x + y),
 );
 
 console.log(
-  input.updates.filter((u) => !sortedCorrectly(input.rules, u)).map((u) =>
-    sortUpdate(input.rules, u)
+  input.updates.filter((u) => !sortedCorrectly(input.rules)(u)).map(
+    sortUpdate(input.rules),
   ).map(
     middleElement,
   ).reduce((x, y) => x + y),
