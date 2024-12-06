@@ -10,13 +10,13 @@ type Position struct { row, column int }
 type Direction struct { dRow, dColumn int }
 
 type Grid struct {
-  Obstructions [][]bool
+  Obstructions map[Position]struct{}
   Guard struct {
     Position Position
     Direction Direction
   }
-  Bounds struct { 
-    Rows, Columns int 
+  Bounds struct {
+    Rows, Columns int
   }
 }
 
@@ -45,22 +45,24 @@ func readGrid() (Grid, error) {
   defer file.Close()
 
   scanner := bufio.NewScanner(file)
+
+  grid.Obstructions = make(map[Position]struct{})
+
   for row := 0; scanner.Scan(); row++ {
     line := scanner.Text()
     grid.Bounds.Rows++
 
     fmt.Printf("%d %s\n", row, line);
 
-    if len(grid.Obstructions) < grid.Bounds.Rows {
-      grid.Obstructions = append(grid.Obstructions, make([]bool, len(line)))
-    }
-
     for column, char := range line {
+      position := Position{row: row, column: column}
+
       if char == '#' {
-        grid.Obstructions[row][column] = true
+        fmt.Printf("obstruction registered: %+v\n", position)
+        grid.Obstructions[position] = struct{}{}
       } else if char == '^' {
-        grid.Guard.Position = Position{row, column}
-        grid.Guard.Direction = Direction{dColumn: 0, dRow: -1}
+        grid.Guard.Position = position
+        grid.Guard.Direction = Direction{dColumn: 0, dRow: -1} // upwards
         foundGuard = true
       }
     }
@@ -81,23 +83,19 @@ func readGrid() (Grid, error) {
 }
 
 func moveGuard(grid *Grid, visited map[Position]struct{}) bool {
-  printGridVisited(*grid, visited)
-  fmt.Println()
-
-  fmt.Printf("Direction: %+v\n", grid.Guard.Direction)
-
   currentPos := grid.Guard.Position
+  visited[currentPos] = struct{}{}
+
   nextPos := Position{
     row: currentPos.row + grid.Guard.Direction.dRow,
     column: currentPos.column + grid.Guard.Direction.dColumn,
   }
 
   if nextPos.row < 0 || nextPos.row >= grid.Bounds.Rows || nextPos.column < 0 || nextPos.column >= grid.Bounds.Columns {
-    visited[currentPos] = struct{}{}
     return false
   }
 
-  if grid.Obstructions[nextPos.row][nextPos.column] {
+  if _, ok := grid.Obstructions[nextPos]; ok {
     fmt.Printf("%d,%d was obstructed\n", nextPos.row, nextPos.column)
     grid.Guard.Direction = directions[(getDirectionIndex(grid.Guard.Direction) + 1) % 4]
   } else {
@@ -120,9 +118,10 @@ func printGridVisited(grid Grid, visited map[Position]struct{}) {
   for row := 0; row < grid.Bounds.Rows; row++ {
     fmt.Printf("%3d ", row)
     for column := 0; column < grid.Bounds.Columns; column++ {
-      if _, ok := visited[Position{column, row}]; ok {
+      position := Position{column: column, row: row}
+      if _, ok := visited[position]; ok {
         fmt.Printf("X")
-      } else if grid.Obstructions[row][column] {
+      } else if _, ok := grid.Obstructions[position]; ok {
         fmt.Printf("#")
       } else {
         fmt.Printf(".")
@@ -132,28 +131,12 @@ func printGridVisited(grid Grid, visited map[Position]struct{}) {
   }
 }
 
-func printGridInfo(grid Grid) {
-  fmt.Println("Positions of obstructions ('#'):")
-  for row := 0; row < grid.Bounds.Rows; row++ {
-    for col := 0; col < grid.Bounds.Columns; col++ {
-      if grid.Obstructions[row][col] {
-        fmt.Printf("Row: %d, Col: %d\n", row, col)
-      }
-    }
-  }
-
-  fmt.Printf("\nPosition of guard ('^'): Row: %d, Col: %d\n", grid.Guard.Position.row, grid.Guard.Position.column)
-  fmt.Printf("\nGrid Bounds: %d rows, %d columns\n", grid.Bounds.Rows, grid.Bounds.Columns)
-}
-
 func main() {
   grid, err := readGrid()
   if err != nil {
     fmt.Println("Error:", err)
     return
   }
-
-  printGridInfo(grid)
 
   visited := make(map[Position]struct{})
   for {
@@ -165,5 +148,4 @@ func main() {
   printGridVisited(grid, visited)
 
   fmt.Printf("Unique positions visited: %d\n", len(visited))
-
 }
