@@ -186,13 +186,17 @@ func main() {
 
       newVisited := make(map[Position]Direction)
 
-      for {
+      for i := 0; ; i++ {
         if x := moveGuard(&newGrid, newVisited); x != Ok {
           if x == Loop {
             fmt.Printf("inserting obstruction at %+v lead to loop of %d\n", pathPosition, len(newVisited))
-            printGridVisited(newGrid, newVisited)
+            // printGridVisited(newGrid, newVisited)
             obstructionPositions++
           }
+          break
+        } else if i >= newGrid.Bounds.Rows * newGrid.Bounds.Columns {
+          fmt.Printf("inserting obstruction at %+v lead to infinite loop\n", pathPosition)
+          obstructionPositions++
           break
         }
       }
