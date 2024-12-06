@@ -8,17 +8,27 @@ import (
 
 type Position struct { row, column int }
 type Direction struct { dRow, dColumn int }
+type Guard struct {
+  Position Position
+  StartingPosition Position
+  Direction Direction
+}
 
 type Grid struct {
   Obstructions map[Position]struct{}
-  Guard struct {
-    Position Position
-    Direction Direction
-  }
+  Guard Guard
   Bounds struct {
     Rows, Columns int
   }
 }
+
+type move int
+
+const (
+    Ok move = iota
+    OutOfBounds
+    Loop
+)
 
 var directions = []Direction{
   {dRow: 0, dColumn: 1},  // Right
@@ -52,16 +62,17 @@ func readGrid() (Grid, error) {
     line := scanner.Text()
     grid.Bounds.Rows++
 
-    fmt.Printf("%d %s\n", row, line);
+    // fmt.Printf("%d %s\n", row, line);
 
     for column, char := range line {
       position := Position{row: row, column: column}
 
       if char == '#' {
-        fmt.Printf("obstruction registered: %+v\n", position)
+        // fmt.Printf("obstruction registered: %+v\n", position)
         grid.Obstructions[position] = struct{}{}
       } else if char == '^' {
         grid.Guard.Position = position
+        grid.Guard.StartingPosition = position
         grid.Guard.Direction = Direction{dColumn: 0, dRow: -1} // upwards
         foundGuard = true
       }
@@ -82,9 +93,9 @@ func readGrid() (Grid, error) {
   return grid, fmt.Errorf("guard ('^') not found in the grid")
 }
 
-func moveGuard(grid *Grid, visited map[Position]struct{}) bool {
+func moveGuard(grid *Grid, visited map[Position]Direction) move {
   currentPos := grid.Guard.Position
-  visited[currentPos] = struct{}{}
+  visited[currentPos] = grid.Guard.Direction
 
   nextPos := Position{
     row: currentPos.row + grid.Guard.Direction.dRow,
@@ -92,17 +103,18 @@ func moveGuard(grid *Grid, visited map[Position]struct{}) bool {
   }
 
   if nextPos.row < 0 || nextPos.row >= grid.Bounds.Rows || nextPos.column < 0 || nextPos.column >= grid.Bounds.Columns {
-    return false
+    return OutOfBounds
   }
 
   if _, ok := grid.Obstructions[nextPos]; ok {
-    fmt.Printf("%d,%d was obstructed\n", nextPos.row, nextPos.column)
     grid.Guard.Direction = directions[(getDirectionIndex(grid.Guard.Direction) + 1) % 4]
+  } else if dir, ok := visited[nextPos]; ok && dir == grid.Guard.Direction {
+    return Loop
   } else {
     grid.Guard.Position = nextPos
-    visited[nextPos] = struct{}{}
+    visited[nextPos] = grid.Guard.Direction
   }
-  return true
+  return Ok
 }
 
 func getDirectionIndex(direction Direction) int {
@@ -114,21 +126,22 @@ func getDirectionIndex(direction Direction) int {
   return -1
 }
 
-func printGridVisited(grid Grid, visited map[Position]struct{}) {
+func printGridVisited(grid Grid, visited map[Position]Direction) {
   for row := 0; row < grid.Bounds.Rows; row++ {
     fmt.Printf("%3d ", row)
     for column := 0; column < grid.Bounds.Columns; column++ {
       position := Position{column: column, row: row}
       if _, ok := visited[position]; ok {
         fmt.Printf("X")
-      } else if _, ok := grid.Obstructions[position]; ok {
+      } else if _, ok := grid.Obstructions[position]; ok  {
         fmt.Printf("#")
       } else {
         fmt.Printf(".")
       }
     }
-    fmt.Printf("\n")
+    fmt.Println()
   }
+  fmt.Println()
 }
 
 func main() {
@@ -138,9 +151,10 @@ func main() {
     return
   }
 
-  visited := make(map[Position]struct{})
+  visited := make(map[Position]Direction)
   for {
-    if !moveGuard(&grid, visited) {
+    if x := moveGuard(&grid, visited); x != Ok {
+      fmt.Printf("%+v\n", x)
       break
     }
   }
@@ -148,4 +162,42 @@ func main() {
   printGridVisited(grid, visited)
 
   fmt.Printf("Unique positions visited: %d\n", len(visited))
+
+  obstructionPositions := 0
+
+  for pathPosition := range visited {
+    if pathPosition != grid.Guard.StartingPosition {
+      newGrid := Grid {
+        Obstructions: make(map[Position]struct{}),
+        Guard: Guard{
+          StartingPosition: grid.Guard.StartingPosition,
+          Position: grid.Guard.StartingPosition,
+          Direction: Direction{dRow: -1, dColumn: 0}, // Up
+        },
+        Bounds: grid.Bounds,
+      }
+
+      // insert new obstruction
+      for oldObstruction := range grid.Obstructions {
+        newGrid.Obstructions[oldObstruction] = struct{}{}
+      }
+      newGrid.Obstructions[pathPosition] = struct{}{}
+      fmt.Printf("inserted obstruction at %+v\n", pathPosition)
+
+      newVisited := make(map[Position]Direction)
+
+      for {
+        if x := moveGuard(&newGrid, newVisited); x != Ok {
+          if x == Loop {
+            fmt.Printf("inserting obstruction at %+v lead to loop of %d\n", pathPosition, len(newVisited))
+            printGridVisited(newGrid, newVisited)
+            obstructionPositions++
+          }
+          break
+        }
+      }
+    }
+  }
+
+  fmt.Printf("Obstructions could be placed at %d positions", obstructionPositions)
 }
