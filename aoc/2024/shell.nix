@@ -7,6 +7,7 @@ pkgs.mkShell {
     pkgs.nim #4
     pkgs.deno #5
     pkgs.go #6
+    pkgs.gmp pkgs.R pkgs.rstudio #7
 
     (pkgs.writers.writeDashBin "which-language" ''
       ${pkgs.gnugrep}/bin/grep '^- \[ ]' README.md | ${pkgs.coreutils}/bin/shuf -n 1
