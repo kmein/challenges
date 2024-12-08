@@ -5,7 +5,8 @@ prim/prim.cabal
 .direnv
 *.ali
 *.o
-02
-03
-aoc04
-06
+aoc??
+??
+.RData
+.Rhistory
+*sync-conflict*
