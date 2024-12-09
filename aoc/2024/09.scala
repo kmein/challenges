@@ -27,6 +27,19 @@ object Aoc09 {
       go(this.blocks, List())
     }
 
+    def defragmentImperative(): Memory = {
+      var blocksArray: Array[Option[Int]] = this.blocks.toArray
+
+      for (i <- this.blocks.indices.reverse) {
+        if (!(blocksArray(i) == None || blocksArray.indexOf(None) > i)) {
+          blocksArray(blocksArray.indexOf(None)) = blocksArray(i)
+          blocksArray(i) = None
+        }
+      }
+
+      Memory(blocksArray.toList)
+    }
+
     def checksum(): Int = blocks.zipWithIndex.map{case (c, i) => c.getOrElse(0) * i}.sum
   }
 
@@ -55,7 +68,7 @@ object Aoc09 {
     val memory = Memory(parseBlocks(readInput()))
     memory.debug()
 
-    val defragmented = memory.defragment()
+    val defragmented = memory.defragmentImperative()
     defragmented.debug()
 
     println(defragmented.checksum())
