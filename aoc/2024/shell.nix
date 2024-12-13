@@ -10,8 +10,6 @@ pkgs.mkShell {
     pkgs.gmp pkgs.R pkgs.rstudio #7
     pkgs.rustc #8
     pkgs.scala #9
-    pkgs.perl #10
-    pkgs.php #11
 
     (pkgs.writers.writeDashBin "which-language" ''
       ${pkgs.gnugrep}/bin/grep '^- \[ ]' README.md | ${pkgs.coreutils}/bin/shuf -n 1
