@@ -3,7 +3,7 @@
 ## Programming Languages
 - [ ] Bash
 - [ ] C#
-- [ ] C++
+- [x] C++: 14
 - [ ] Clojure
 - [x] Dart: 13
 - [ ] Elixir
