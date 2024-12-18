@@ -1,7 +1,7 @@
 # Advent of Code 2024
 
 ## Programming Languages
-- [ ] Bash
+- [x] Bash: 18
 - [ ] C#
 - [x] C++: 14
 - [ ] Clojure
