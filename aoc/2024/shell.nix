@@ -19,6 +19,7 @@ pkgs.mkShell {
     pkgs.openjdk #16
     pkgs.dotnet-sdk #17
     pkgs.python3Packages.networkx pkgs.bash-language-server #18
+    pkgs.ruby #19
 
     (pkgs.writers.writeDashBin "which-language" ''
       ${pkgs.gnugrep}/bin/grep '^- \[ ]' README.md | ${pkgs.coreutils}/bin/shuf -n 1
