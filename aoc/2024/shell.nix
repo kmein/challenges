@@ -21,6 +21,7 @@ pkgs.mkShell {
     pkgs.python3Packages.networkx pkgs.bash-language-server #18
     pkgs.ruby #19
     pkgs.ocaml #22
+    pkgs.kotlin #23
 
     (pkgs.writers.writeDashBin "which-language" ''
       ${pkgs.gnugrep}/bin/grep '^- \[ ]' README.md | ${pkgs.coreutils}/bin/shuf -n 1
