@@ -13,37 +13,40 @@ import System.Environment
 
 type Label = T.Text
 type Inputs = M.Map Label Bool
-type Node = (Inputs -> Inputs, Label, [Label])
-type Circuit = (Graph, Vertex -> Node, Label -> Maybe Vertex)
+type Gate =
+  ( Inputs -> Inputs -- function
+  , Label -- output label
+  , [Label] -- input labels
+  )
 
-getInput :: IO (Circuit, Inputs)
+getInput :: IO ([Gate], Inputs)
 getInput = do
   inputString <- T.readFile . maybe "24.txt" (const "24.txt.test") =<< lookupEnv "AOC_TEST"
   case T.splitOn "\n\n" inputString of
     [initialValuesString, gatesString] ->
       let initialValues = M.fromList $ map parseInitialValue $ T.lines initialValuesString
-          graphTriple = graphFromEdges $ map parseGate $ T.lines gatesString
-      in pure (graphTriple, initialValues)
+          gates = map parseGate $ T.lines gatesString
+      in pure (gates, initialValues)
     _ -> error "File needs to have two sections."
   where
     parseInitialValue line =
       let (identifier, rest) = T.splitAt 3 line
           (_, value) = T.splitAt 2 rest
       in (identifier, value == "1")
+    parseGate :: T.Text -> Gate
     parseGate line =
       case T.words line of
         [a, op, b, "->", c] -> (apply op a b c, c, [a, b])
         _ -> error "Malformed file."
       where
         apply op a b c m =
-          let operator = case op of
-                "XOR" -> (/=)
-                "AND" -> (&&)
-                "OR" -> (||)
-                _ -> error "Malformed operation."
-              a' = m M.! a
+          let a' = m M.! a
               b' = m M.! b
-              c' = a' `operator` b'
+              c' = case op of
+                "XOR" -> a' /= b'
+                "AND" -> a' && b'
+                "OR"  -> a' || b'
+                _     -> error "Malformed expression."
           in
           trace
             (T.unpack $
@@ -66,13 +69,12 @@ readBinary variable =
     )
     zeroBits
 
-evaluateCircuit :: Circuit -> Inputs -> Inputs
-evaluateCircuit (graph, getNode, _) initialValues =
-  foldr (\vertex acc -> let (update, _, _) = getNode vertex in update acc) initialValues $ topSort graph
+evaluateCircuit :: [Gate] -> Inputs -> Inputs
+evaluateCircuit gates initialInputs =
+  let (graph, getGate, _) = graphFromEdges gates
+  in foldr (\vertex inputs -> let (runGate, _, _) = getGate vertex in runGate inputs) initialInputs $ topSort graph
 
 main :: IO ()
 main = do
-  (circuit, inputs) <- getInput
-  print $ readBinary 'x' inputs
-  print $ readBinary 'y' inputs
-  print $ readBinary 'z' $ evaluateCircuit circuit inputs
+  (gates, inputs) <- getInput
+  print $ readBinary 'z' $ evaluateCircuit gates inputs
