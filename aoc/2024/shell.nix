@@ -22,6 +22,7 @@ pkgs.mkShell {
     pkgs.ruby #19
     pkgs.ocaml #22
     pkgs.kotlin #23
+    (pkgs.ghc.withPackages (hs: [hs.containers hs.text])) #24
 
     (pkgs.writers.writeDashBin "which-language" ''
       ${pkgs.gnugrep}/bin/grep '^- \[ ]' README.md | ${pkgs.coreutils}/bin/shuf -n 1
