@@ -47,17 +47,8 @@ getInput = do
                 "AND" -> a' && b'
                 "OR"  -> a' || b'
                 _     -> error "Malformed expression."
-          in
-          trace
-            (T.unpack $
-              T.unwords
-                [ a, T.pack ("(" ++ show a' ++ ")")
-                , op
-                , b, T.pack ("(" ++ show b' ++ ")")
-                , "="
-                , c, T.pack ("(" ++ show c' ++ ")")
-                ]) $
-          M.insert c c' m
+              debug = T.unpack a <> " (" <> show a' <> ") " <> T.unpack op <> " " <> T.unpack b <> " (" <> show b' <> ") = " <> T.unpack c <> " (" <> show c' <> ")"
+          in trace debug $ M.insert c c' m
 
 readBinary :: Char -> Inputs -> Int
 readBinary variable =
