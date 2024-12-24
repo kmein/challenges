@@ -4,34 +4,34 @@ module Main where
 
 import Data.Bits
 import Data.Graph
-import Data.Map.Strict qualified
+import qualified Data.Map.Strict as M
 import Data.Maybe
-import Data.Text qualified
-import Data.Text.IO qualified
+import qualified Data.Text as T
+import qualified Data.Text.IO as T
 import Debug.Trace
 import System.Environment
 
-type Label = Data.Text.Text
-type Inputs = Data.Map.Strict.Map Label Bool
+type Label = T.Text
+type Inputs = M.Map Label Bool
 type Node = (Inputs -> Inputs, Label, [Label])
 type Circuit = (Graph, Vertex -> Node, Label -> Maybe Vertex)
 
 getInput :: IO (Circuit, Inputs)
 getInput = do
-  inputString <- Data.Text.IO.readFile . maybe "24.txt" (const "24.txt.test") =<< lookupEnv "AOC_TEST"
-  case Data.Text.splitOn "\n\n" inputString of
+  inputString <- T.readFile . maybe "24.txt" (const "24.txt.test") =<< lookupEnv "AOC_TEST"
+  case T.splitOn "\n\n" inputString of
     [initialValuesString, gatesString] ->
-      let initialValues = Data.Map.Strict.fromList $ map parseInitialValue $ Data.Text.lines initialValuesString
-          graphTriple = graphFromEdges $ map parseGate $ Data.Text.lines gatesString
+      let initialValues = M.fromList $ map parseInitialValue $ T.lines initialValuesString
+          graphTriple = graphFromEdges $ map parseGate $ T.lines gatesString
       in pure (graphTriple, initialValues)
     _ -> error "File needs to have two sections."
   where
     parseInitialValue line =
-      let (identifier, rest) = Data.Text.splitAt 3 line
-          (_, value) = Data.Text.splitAt 2 rest
+      let (identifier, rest) = T.splitAt 3 line
+          (_, value) = T.splitAt 2 rest
       in (identifier, value == "1")
     parseGate line =
-      case Data.Text.words line of
+      case T.words line of
         [a, op, b, "->", c] -> (apply op a b c, c, [a, b])
         _ -> error "Malformed file."
       where
@@ -41,27 +41,27 @@ getInput = do
                 "AND" -> (&&)
                 "OR" -> (||)
                 _ -> error "Malformed operation."
-              a' = m Data.Map.Strict.! a
-              b' = m Data.Map.Strict.! b
+              a' = m M.! a
+              b' = m M.! b
               c' = a' `operator` b'
           in
           trace
-            (Data.Text.unpack $
-              Data.Text.unwords
-                [ a, Data.Text.pack ("(" ++ show a' ++ ")")
+            (T.unpack $
+              T.unwords
+                [ a, T.pack ("(" ++ show a' ++ ")")
                 , op
-                , b, Data.Text.pack ("(" ++ show b' ++ ")")
+                , b, T.pack ("(" ++ show b' ++ ")")
                 , "="
-                , c, Data.Text.pack ("(" ++ show c' ++ ")")
+                , c, T.pack ("(" ++ show c' ++ ")")
                 ]) $
-          Data.Map.Strict.insert c c' m
+          M.insert c c' m
 
-readResult :: Inputs -> Int
-readResult =
-  Data.Map.Strict.foldrWithKey
+readBinary :: Char -> Inputs -> Int
+readBinary variable =
+  M.foldrWithKey
     (\k v acc ->
-      case Data.Text.uncons k of
-        Just ('z', read . Data.Text.unpack -> bitIndex) -> (if v then setBit else clearBit) acc bitIndex
+      case T.uncons k of
+        Just (c, read . T.unpack -> bitIndex) | c == variable -> (if v then setBit else clearBit) acc bitIndex
         _ -> acc
     )
     zeroBits
@@ -72,5 +72,7 @@ evaluateCircuit (graph, getNode, _) initialValues =
 
 main :: IO ()
 main = do
-  (inputs, circuit) <- getInput
-  print $ readResult $ evaluateCircuit inputs circuit
+  (circuit, inputs) <- getInput
+  print $ readBinary 'x' inputs
+  print $ readBinary 'y' inputs
+  print $ readBinary 'z' $ evaluateCircuit circuit inputs
